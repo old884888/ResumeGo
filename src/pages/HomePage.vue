@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   Plus,
@@ -9,10 +9,16 @@ import {
   Upload,
   FilePlus2,
   Trash2,
+  ClipboardPaste,
+  ShieldAlert,
+  X,
 } from 'lucide-vue-next'
 import { useResumeStore } from '@/stores/resumes'
 import { useEditorStore } from '@/stores/editor'
+import { usePrefsStore, backupHintDue } from '@/stores/prefs'
+import { useBackupStore } from '@/stores/backup'
 import ResumeCard from '@/components/home/ResumeCard.vue'
+import ImportTextModal from '@/components/home/ImportTextModal.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppMenu from '@/components/ui/AppMenu.vue'
 import AppModal from '@/components/ui/AppModal.vue'
@@ -20,10 +26,33 @@ import AppModal from '@/components/ui/AppModal.vue'
 const router = useRouter()
 const store = useResumeStore()
 const editor = useEditorStore()
+const prefs = usePrefsStore()
+const backup = useBackupStore()
 
 const renameTarget = ref<string | null>(null)
 const renameText = ref('')
 const deleteTarget = ref<string | null>(null)
+const importTextOpen = ref(false)
+
+/* 备份提醒：有未备份的改动且过了宽限期 */
+const backupWarning = computed(() => {
+  if (!store.ready || store.list.length === 0) return null
+  const latest = Math.max(...store.list.map((r) => r.updatedAt))
+  const earliest = Math.min(...store.list.map((r) => r.createdAt))
+  if (!backupHintDue(prefs.lastBackupAt, prefs.backupHintDismissedAt, latest, earliest)) return null
+  return prefs.lastBackupAt
+    ? `距上次备份已 ${prefs.daysSinceBackup} 天，期间有新的修改`
+    : '简历只保存在这台浏览器里，清除浏览器数据 = 全部丢失'
+})
+
+function backupNow() {
+  store.exportAll()
+  prefs.markBackedUp()
+}
+
+function dismissBackup() {
+  prefs.dismissBackupHint()
+}
 
 function open(id: string) {
   editor.open(id)
@@ -42,6 +71,10 @@ function quickSample() {
   })
 }
 
+function onImportCreated(id: string) {
+  open(id)
+}
+
 function doRename() {
   if (renameTarget.value && renameText.value.trim()) {
     const r = store.map[renameTarget.value]
@@ -51,7 +84,7 @@ function doRename() {
 }
 
 function doDelete() {
-  if (deleteTarget.value) store.remove(deleteTarget.value)
+  if (deleteTarget.value) void store.remove(deleteTarget.value)
   deleteTarget.value = null
 }
 </script>
@@ -74,6 +107,16 @@ function doDelete() {
     </header>
 
     <main class="home-main">
+      <div v-if="backupWarning" class="backup-banner">
+        <ShieldAlert class="bb-icon" />
+        <span class="bb-text">{{ backupWarning }}</span>
+        <span class="bb-actions">
+          <button class="bb-btn primary" @click="backupNow">立即备份</button>
+          <router-link to="/settings" class="bb-btn">开启自动备份</router-link>
+          <button class="bb-dismiss" title="本次先不提醒" @click="dismissBackup"><X /></button>
+        </span>
+      </div>
+
       <div class="grid">
         <AppMenu align="left" class="new-wrap">
           <template #trigger>
@@ -83,8 +126,11 @@ function doDelete() {
             </button>
           </template>
           <button class="am-item" @click="createBlank"><FilePlus2 /> 空白简历</button>
+          <button class="am-item" @click="importTextOpen = true">
+            <ClipboardPaste /> 粘贴文本导入
+          </button>
           <button class="am-item" @click="quickSample"><Sparkles /> 从示例开始</button>
-          <button class="am-item" @click="store.importOne()"><Upload /> 导入 JSON</button>
+          <button class="am-item" @click="void store.importOne()"><Upload /> 导入 JSON</button>
         </AppMenu>
 
         <ResumeCard
@@ -106,6 +152,8 @@ function doDelete() {
         <AppButton variant="primary" @click="quickSample"><Sparkles /> 用示例试试手</AppButton>
       </div>
     </main>
+
+    <ImportTextModal v-model="importTextOpen" @close="importTextOpen = false" @created="onImportCreated" />
 
     <AppModal :open="!!renameTarget" title="重命名简历" @close="renameTarget = null">
       <input v-model="renameText" class="ti" placeholder="简历名称" @keyup.enter="doRename" />
@@ -194,6 +242,76 @@ function doDelete() {
   flex: 1;
   overflow-y: auto;
   padding: 18px 48px 48px;
+}
+
+.backup-banner {
+  max-width: 1280px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-2, 12px);
+  background: rgba(255, 159, 10, 0.12);
+  border: 1px solid rgba(255, 159, 10, 0.35);
+  color: #9a6a00;
+  font-size: 12.5px;
+  animation: card-rise 0.4s var(--ease) backwards;
+}
+.bb-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.bb-text {
+  flex: 1;
+  min-width: 0;
+}
+.bb-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.bb-btn {
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: rgba(255, 159, 10, 0.18);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s var(--ease);
+}
+.bb-btn:hover {
+  background: rgba(255, 159, 10, 0.3);
+}
+.bb-btn.primary {
+  background: #c77700;
+  color: #fff;
+}
+.bb-btn.primary:hover {
+  background: #b06a00;
+}
+.bb-dismiss {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  opacity: 0.7;
+}
+.bb-dismiss:hover {
+  opacity: 1;
+  background: rgba(255, 159, 10, 0.18);
+}
+.bb-dismiss svg {
+  width: 14px;
+  height: 14px;
 }
 
 .grid {
