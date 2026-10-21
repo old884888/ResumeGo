@@ -18,10 +18,18 @@ async function toggle() {
   const r = root.value?.getBoundingClientRect()
   if (!r) return
   const pw = pop.value?.offsetWidth ?? 150
-  pos.value = {
-    top: r.bottom + 6,
-    left: props.align === 'right' ? r.right - pw : r.left,
+  const ph = pop.value?.offsetHeight ?? 0
+  const margin = 8
+  // 默认向下弹；底部放不下改为向上弹，再兜底夹回视口内
+  let top = r.bottom + 6
+  if (ph && top + ph > window.innerHeight - margin) {
+    const flipped = r.top - 6 - ph
+    top = flipped >= margin ? flipped : Math.max(margin, window.innerHeight - margin - ph)
   }
+  let left = props.align === 'right' ? r.right - pw : r.left
+  if (left + pw > window.innerWidth - margin) left = window.innerWidth - margin - pw
+  if (left < margin) left = margin
+  pos.value = { top, left }
 }
 
 function onDocClick(e: MouseEvent) {
