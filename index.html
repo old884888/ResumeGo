@@ -11,7 +11,74 @@
     <title>简白 · 本地简历工坊</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <!-- Vue 挂载前的启动占位：IndexedDB 初始化期间避免白屏 -->
+      <div class="boot-splash" aria-hidden="true">
+        <div class="boot-mark"></div>
+        <div class="boot-bar"><i></i></div>
+      </div>
+    </div>
+    <style>
+      #boot-splash-style {
+        display: none;
+      }
+      .boot-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: #f5f5f7;
+        font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        .boot-splash {
+          background: #1c1c1e;
+        }
+      }
+      .boot-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #0a84ff, #5ac8fa);
+        box-shadow: 0 6px 20px rgba(10, 132, 255, 0.35);
+        animation: boot-float 1.6s ease-in-out infinite;
+      }
+      .boot-bar {
+        width: 120px;
+        height: 3px;
+        border-radius: 2px;
+        background: rgba(120, 120, 128, 0.22);
+        overflow: hidden;
+      }
+      .boot-bar i {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 2px;
+        background: #0a84ff;
+        animation: boot-slide 1.1s ease-in-out infinite;
+      }
+      @keyframes boot-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+      @keyframes boot-slide {
+        0% {
+          transform: translateX(-110%);
+        }
+        100% {
+          transform: translateX(320%);
+        }
+      }
+    </style>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
