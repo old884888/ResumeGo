@@ -1,0 +1,28 @@
+{
+  "name": "pdfgo-resume",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "简白 JianBai — 本地简历工坊：内容样式分离、所见即所得、数据不出本机",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "jspdf": "^4.2.1",
+    "lucide-vue-next": "^0.454.0",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.10",
+    "vite-plugin-singlefile": "^2.0.2",
+    "vue-tsc": "^2.1.10"
+  }
+}

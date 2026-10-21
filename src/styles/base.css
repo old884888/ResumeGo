@@ -1,0 +1,188 @@
+/* ============ 基础样式 ============ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--text-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--ui-accent);
+  text-decoration: none;
+}
+
+/* 细滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 5px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.55);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============ 通用表单控件 ============ */
+
+.ti {
+  width: 100%;
+  border: 1px solid var(--hairline);
+  background: var(--bg);
+  border-radius: var(--radius-1);
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text-1);
+  outline: none;
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease),
+    background-color 0.15s var(--ease);
+}
+
+.ti::placeholder {
+  color: var(--text-3);
+}
+
+.ti:hover {
+  border-color: var(--hairline-strong);
+}
+
+.ti:focus {
+  border-color: var(--ui-accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--ui-accent-soft);
+}
+
+textarea.ti {
+  resize: vertical;
+  min-height: 52px;
+  line-height: 1.5;
+}
+
+/* 无边框行内输入（标题等） */
+.ti-bare {
+  border: none;
+  background: transparent;
+  outline: none;
+  border-radius: var(--radius-1);
+  padding: 3px 6px;
+  transition: background-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.ti-bare:hover {
+  background: var(--ui-accent-soft);
+}
+.ti-bare:focus {
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--ui-accent);
+}
+
+/* ============ 页面过渡 ============ */
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.22s var(--ease), transform 0.22s var(--ease);
+}
+.page-enter-from {
+  opacity: 0;
+  transform: scale(0.985) translateY(4px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: scale(0.99);
+}
+
+/* 弹窗过渡 */
+.modal-enter-active {
+  transition: opacity 0.25s var(--ease);
+}
+.modal-leave-active {
+  transition: opacity 0.18s var(--ease);
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-active .modal-panel {
+  transition: transform 0.3s var(--spring), opacity 0.25s var(--ease);
+}
+.modal-enter-from .modal-panel {
+  transform: scale(0.94) translateY(10px);
+  opacity: 0;
+}
+.modal-leave-to .modal-panel {
+  transform: scale(0.97) translateY(4px);
+  opacity: 0;
+}
+
+/* 菜单过渡 */
+.menu-enter-active,
+.menu-leave-active {
+  transition: opacity 0.15s var(--ease), transform 0.15s var(--ease);
+  transform-origin: top right;
+}
+.menu-enter-from,
+.menu-leave-to {
+  opacity: 0;
+  transform: scale(0.95) translateY(-3px);
+}
+
+/* toast 过渡 */
+.toast-enter-active {
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--spring);
+}
+.toast-leave-active {
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+}
+
+/* 减弱动态 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

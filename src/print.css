@@ -1,0 +1,27 @@
+/* ============ 打印管线：只输出纸张，应用 UI 全部隐藏 ============ */
+
+#print-root {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  #app {
+    display: none !important;
+  }
+  #print-root {
+    display: block !important;
+  }
+  #print-root .paper {
+    box-shadow: none !important;
+    margin: 0 !important;
+    transform: none !important;
+    width: 794px;
+  }
+}
